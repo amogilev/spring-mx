@@ -2,6 +2,7 @@
 **/bin-test/
 **/build/
 **/target/
-**/.idea
-**/out
+.idea
+.gradle
 *.iml
+xmx_dist/*.zip

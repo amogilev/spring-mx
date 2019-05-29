@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.8'
+}
+
+group 'com.gilecode.xmx'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+//    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version '2019.1.1'
+    intellij.updateSinceUntilBuild false
+}
+patchPluginXml {
+//    changeNotes """
+//      Add change notes here.<br>
+//      <em>most HTML tags may be used</em>"""
+}
+
+prepareSandbox {
+    from(zipTree(findXmxDist())) { into project.name + '/lib/xmx' }
+}
+
+def findXmxDist () {
+    def files =  fileTree('xmx_dist')
+        .filter { it.isFile() && it.getName().startsWith('xmx-distribution-') && it.getName().endsWith('-bin.zip') }
+        .files
+    if (files.size() == 0)
+        throw new GradleException('XMX distribution is missing; please add it as ZIP file to xmx_dist!')
+    else if (files.size() > 1)
+        throw new GradleException('Multiple XMX distributions are found in xmx_dist; please remove all but one ZIP files!')
+   return files[0]
+}

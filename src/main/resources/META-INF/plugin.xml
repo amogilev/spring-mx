@@ -1,0 +1,26 @@
+<idea-plugin>
+    <id>com.gilecode.xmx.smx-idea</id>
+    <name>Spring MX</name>
+    <vendor email="amogilev@gmail.com" url="http://github.com/amogilev">Andrey Mogilev</vendor>
+
+    <description><![CDATA[
+    Allows displaying and management of actual Spring contexts and beans at run time.
+    Displays resolved @Value placeholders
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <idea-version since-build="191"/> <!-- TODO test with earlier versions, e.g. 171 -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <runConfigurationExtension implementation="com.gilecode.xmx.smx.XmxAgentConfigExtension"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+</idea-plugin>
