@@ -10,20 +10,44 @@ import com.intellij.openapi.extensions.PluginId;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class XmxAgentConfigExtension extends RunConfigurationExtension {
 
     private File agentJar;
+    private File xmxHomeDir;
     private boolean agentJarFound = false;
 
     @Override
     public <T extends RunConfigurationBase> void updateJavaParameters(T configuration, JavaParameters params, RunnerSettings runnerSettings) throws ExecutionException {
-        if (agentJarFound) {
-            // TODO: add custom parameters (ini file, port)
-            params.getVMParametersList().add("-javaagent:" + agentJar.getAbsolutePath());
+        if (!isApplicableFor(configuration)) {
+            return;
         }
-        // TODO: remove after debugging
-        System.out.println("updateJavaParameters: new VMParams= " + params.getVMParametersList());
+        params.getVMParametersList().add("-javaagent:" + agentJar.getAbsolutePath() + "=" + buildXmxParams());
+    }
+
+    private String buildXmxParams() {
+        Map<String, Object> params = new TreeMap<>();
+        params.put("config", new File(xmxHomeDir, "smx.ini").getAbsolutePath());
+        params.put("EmbeddedWebServer.Port", findAvailablePort());
+        return toParamsString(params);
+    }
+
+    private String toParamsString(Map<String, Object> params) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append(',');
+            }
+            sb.append(entry.getKey()).append('=').append(entry.getValue().toString());
+        }
+        return sb.toString();
+    }
+
+    private String findAvailablePort() {
+        // TODO: get port range from config, detect available, maybe mark as busy
+        return "8081";
     }
 
     @Override
@@ -31,6 +55,8 @@ public class XmxAgentConfigExtension extends RunConfigurationExtension {
         if (!isPluginEnabled()) {
             return false;
         }
+        // TODO: check that spring jars are in classpath
+        // TODO: check that enabled for the configuration of this type (Run vs Debug)
         ensureAgentJar();
         return agentJarFound;
     }
@@ -43,7 +69,8 @@ public class XmxAgentConfigExtension extends RunConfigurationExtension {
     private void ensureAgentJar() {
         if (agentJar == null) {
             File pluginDir = PluginManager.getPlugin(PluginId.getId(Constants.PLUGIN_ID)).getPath();
-            agentJar = new File(pluginDir, "lib//xmx//bin//xmx-agent.jar");
+            xmxHomeDir = new File(pluginDir, "lib//xmx");
+            agentJar = new File(xmxHomeDir, "bin//xmx-agent.jar");
             agentJarFound = agentJar.isFile();
         }
     }

@@ -30,6 +30,7 @@ patchPluginXml {
 
 prepareSandbox {
     from(zipTree(findXmxDist())) { into project.name + '/lib/xmx' }
+    from(file('src/main/xmx_resources')) { into project.name + '/lib/xmx' }
 }
 
 def findXmxDist () {
