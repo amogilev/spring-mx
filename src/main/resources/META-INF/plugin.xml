@@ -16,8 +16,8 @@
 
     <idea-version since-build="191"/> <!-- TODO test with earlier versions, e.g. 171 -->
 
-    <extensions defaultExtensionNs="com.intellij">
-        <runConfigurationExtension implementation="com.gilecode.xmx.smx.XmxAgentConfigExtension"/>
+    <extensions defaultExtensionNs="com.intellij.java">
+        <programPatcher implementation="com.gilecode.xmx.smx.XmxAgentVmParamsPatcherExtension"/>
     </extensions>
 
     <actions>

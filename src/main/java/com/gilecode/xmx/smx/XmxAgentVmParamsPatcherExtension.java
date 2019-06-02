@@ -1,30 +1,33 @@
 package com.gilecode.xmx.smx;
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.RunConfigurationExtension;
+import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
-import com.intellij.execution.configurations.RunConfigurationBase;
-import com.intellij.execution.configurations.RunnerSettings;
+import com.intellij.execution.configurations.RunProfile;
+import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.extensions.PluginId;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.util.PathsList;
 
 import java.io.File;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
-public class XmxAgentConfigExtension extends RunConfigurationExtension {
+public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
 
+    public static final String PATTERN_SPRING_JAR = "\\bspring[\\p{Alnum}.-]*\\.jar$";
+
+    private final Pattern patternSpringJar = Pattern.compile(PATTERN_SPRING_JAR);
     private File agentJar;
     private File xmxHomeDir;
     private boolean agentJarFound = false;
 
     @Override
-    public <T extends RunConfigurationBase> void updateJavaParameters(T configuration, JavaParameters params, RunnerSettings runnerSettings) throws ExecutionException {
-        if (!isApplicableFor(configuration)) {
+    public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
+        if (!isApplicableFor(executor, configuration, javaParameters)) {
             return;
         }
-        params.getVMParametersList().add("-javaagent:" + agentJar.getAbsolutePath() + "=" + buildXmxParams());
+        javaParameters.getVMParametersList().add("-javaagent:" + agentJar.getAbsolutePath() + "=" + buildXmxParams());
     }
 
     private String buildXmxParams() {
@@ -45,20 +48,37 @@ public class XmxAgentConfigExtension extends RunConfigurationExtension {
         return sb.toString();
     }
 
-    private String findAvailablePort() {
-        // TODO: get port range from config, detect available, maybe mark as busy
-        return "8081";
-    }
-
-    @Override
-    public boolean isApplicableFor(@NotNull RunConfigurationBase<?> configuration) {
+    public boolean isApplicableFor(Executor executor, RunProfile configuration, JavaParameters params) {
         if (!isPluginEnabled()) {
             return false;
         }
-        // TODO: check that spring jars are in classpath
+
+        if (!containsSpringJars(params.getClassPath()) && !containsSpringJars(params.getModulePath())) {
+            return false;
+        }
+
+
         // TODO: check that enabled for the configuration of this type (Run vs Debug)
         ensureAgentJar();
         return agentJarFound;
+    }
+
+    private boolean containsSpringJars(PathsList classPath) {
+        for (String path : classPath.getPathList()) {
+            if (isSpringJar(path)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean isSpringJar(String path) {
+        return patternSpringJar.matcher(path).find();
+    }
+
+    private String findAvailablePort() {
+        // TODO: get port range from config, detect available, maybe mark as busy
+        return "8081";
     }
 
     private boolean isPluginEnabled() {
@@ -74,4 +94,5 @@ public class XmxAgentConfigExtension extends RunConfigurationExtension {
             agentJarFound = agentJar.isFile();
         }
     }
+
 }
