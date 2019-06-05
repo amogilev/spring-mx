@@ -1,39 +1,56 @@
 package com.gilecode.xmx.smx;
 
+import com.gilecode.xmx.smx.impl.XmxSessionWatcherServiceImpl;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.runners.JavaProgramPatcher;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.util.PathsList;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
 
     public static final String PATTERN_SPRING_JAR = "\\bspring[\\p{Alnum}.-]*\\.jar$";
 
+    private static final Logger logger = Logger.getInstance(XmxSessionWatcherServiceImpl.class);
+
     private final Pattern patternSpringJar = Pattern.compile(PATTERN_SPRING_JAR);
     private File agentJar;
     private File xmxHomeDir;
     private boolean agentJarFound = false;
+
+    private final XmxPortProviderService portProvider;
+
+    public XmxAgentVmParamsPatcherExtension(XmxPortProviderService portProvider) {
+        this.portProvider = portProvider;
+    }
 
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
         if (!isApplicableFor(executor, configuration, javaParameters)) {
             return;
         }
-        javaParameters.getVMParametersList().add("-javaagent:" + agentJar.getAbsolutePath() + "=" + buildXmxParams());
+
+        try {
+            javaParameters.getVMParametersList().add("-javaagent:" + agentJar.getAbsolutePath() + "=" + buildXmxParams());
+        } catch (SmxRunConfigException e) {
+            logger.error("Failed to inject XMX agent", e);
+        }
     }
 
-    private String buildXmxParams() {
-        Map<String, Object> params = new TreeMap<>();
-        params.put("config", new File(xmxHomeDir, "smx.ini").getAbsolutePath());
+    private String buildXmxParams() throws SmxRunConfigException {
+        Map<String, Object> params = new LinkedHashMap<>();
         params.put("EmbeddedWebServer.Port", findAvailablePort());
+        params.put("config", new File(xmxHomeDir, "smx.ini").getAbsolutePath());
+
         return toParamsString(params);
     }
 
@@ -76,9 +93,13 @@ public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
         return patternSpringJar.matcher(path).find();
     }
 
-    private String findAvailablePort() {
-        // TODO: get port range from config, detect available, maybe mark as busy
-        return "8081";
+    private String findAvailablePort() throws SmxRunConfigException {
+        Integer port = portProvider.findAndReserveFreeXmxPort();
+        if (port == null) {
+            throw new SmxRunConfigException("No available ports found for XMX agent");
+        } else {
+            return Integer.toString(port);
+        }
     }
 
     private boolean isPluginEnabled() {
@@ -88,10 +109,15 @@ public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
 
     private void ensureAgentJar() {
         if (agentJar == null) {
-            File pluginDir = PluginManager.getPlugin(PluginId.getId(Constants.PLUGIN_ID)).getPath();
-            xmxHomeDir = new File(pluginDir, "lib//xmx");
-            agentJar = new File(xmxHomeDir, "bin//xmx-agent.jar");
-            agentJarFound = agentJar.isFile();
+            IdeaPluginDescriptor plugin = PluginManager.getPlugin(PluginId.getId(Constants.PLUGIN_ID));
+            if (plugin != null) {
+                File pluginDir = plugin.getPath();
+                xmxHomeDir = new File(pluginDir, "lib//xmx");
+                agentJar = new File(xmxHomeDir, "bin//xmx-agent.jar");
+                agentJarFound = agentJar.isFile();
+            } else {
+                logger.error("Failed to obtain IdeaPluginDescriptor");
+            }
         }
     }
 

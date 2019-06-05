@@ -14,7 +14,17 @@
     <depends>com.intellij.modules.lang</depends>
     -->
 
-    <idea-version since-build="191"/> <!-- TODO test with earlier versions, e.g. 171 -->
+    <idea-version since-build="191"/> <!-- TODO test with earlier versions (but need BaseProcessHandler - since 181.2784) -->
+
+
+    <extensions defaultExtensionNs="com.intellij">
+        <runConfigurationExtension implementation="com.gilecode.xmx.smx.XmxAgentConfigExtension"/>
+
+        <applicationService serviceInterface="com.gilecode.xmx.smx.XmxSessionWatcherService"
+                            serviceImplementation="com.gilecode.xmx.smx.impl.XmxSessionWatcherServiceImpl"/>
+        <applicationService serviceInterface="com.gilecode.xmx.smx.XmxPortProviderService"
+                            serviceImplementation="com.gilecode.xmx.smx.impl.XmxPortProviderServiceImpl"/>
+    </extensions>
 
     <extensions defaultExtensionNs="com.intellij.java">
         <programPatcher implementation="com.gilecode.xmx.smx.XmxAgentVmParamsPatcherExtension"/>

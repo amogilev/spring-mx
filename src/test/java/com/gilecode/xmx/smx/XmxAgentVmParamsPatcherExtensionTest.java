@@ -1,12 +1,13 @@
 package com.gilecode.xmx.smx;
 
+import com.gilecode.xmx.smx.impl.XmxPortProviderServiceImpl;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class XmxAgentVmParamsPatcherExtensionTest {
 
-    XmxAgentVmParamsPatcherExtension uut = new XmxAgentVmParamsPatcherExtension();
+    private XmxAgentVmParamsPatcherExtension uut = new XmxAgentVmParamsPatcherExtension(null);
 
     @Test
     public void isSpringJar() {
