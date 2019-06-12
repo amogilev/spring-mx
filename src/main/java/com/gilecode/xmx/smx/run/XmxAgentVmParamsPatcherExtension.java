@@ -1,6 +1,9 @@
-package com.gilecode.xmx.smx;
+package com.gilecode.xmx.smx.run;
 
-import com.gilecode.xmx.smx.impl.XmxSessionWatcherServiceImpl;
+import com.gilecode.xmx.smx.Constants;
+import com.gilecode.xmx.smx.sessions.XmxPortProviderService;
+import com.gilecode.xmx.smx.sessions.XmxSessionWatcherServiceImpl;
+import com.gilecode.xmx.smx.settings.SmxSettingService;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.RunProfile;
@@ -28,9 +31,11 @@ public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
     private boolean agentJarFound = false;
 
     private final XmxPortProviderService portProvider;
+    private final SmxSettingService settingService;
 
-    public XmxAgentVmParamsPatcherExtension(XmxPortProviderService portProvider) {
+    public XmxAgentVmParamsPatcherExtension(XmxPortProviderService portProvider, SmxSettingService settingService) {
         this.portProvider = portProvider;
+        this.settingService = settingService;
     }
 
     @Override
@@ -103,8 +108,7 @@ public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
     }
 
     private boolean isPluginEnabled() {
-        // TODO: check that the plugin is enabled
-        return true;
+        return settingService.getState().isEnabled();
     }
 
     private void ensureAgentJar() {

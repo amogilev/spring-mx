@@ -18,16 +18,21 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
-        <runConfigurationExtension implementation="com.gilecode.xmx.smx.XmxAgentConfigExtension"/>
+        <applicationService serviceInterface="com.gilecode.xmx.smx.sessions.XmxSessionWatcherService"
+                            serviceImplementation="com.gilecode.xmx.smx.sessions.XmxSessionWatcherServiceImpl"/>
+        <applicationService serviceInterface="com.gilecode.xmx.smx.sessions.XmxPortProviderService"
+                            serviceImplementation="com.gilecode.xmx.smx.sessions.XmxPortProviderServiceImpl"/>
+        <applicationService serviceInterface="com.gilecode.xmx.smx.settings.SmxSettingService"
+                            serviceImplementation="com.gilecode.xmx.smx.settings.SmxSettingServiceImpl"/>
 
-        <applicationService serviceInterface="com.gilecode.xmx.smx.XmxSessionWatcherService"
-                            serviceImplementation="com.gilecode.xmx.smx.impl.XmxSessionWatcherServiceImpl"/>
-        <applicationService serviceInterface="com.gilecode.xmx.smx.XmxPortProviderService"
-                            serviceImplementation="com.gilecode.xmx.smx.impl.XmxPortProviderServiceImpl"/>
+        <applicationConfigurable
+                id="Settings.SpringMX"
+                groupId="language"
+                instance="com.gilecode.xmx.smx.settings.SmxConfigurable"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.java">
-        <programPatcher implementation="com.gilecode.xmx.smx.XmxAgentVmParamsPatcherExtension"/>
+        <programPatcher implementation="com.gilecode.xmx.smx.run.XmxAgentVmParamsPatcherExtension"/>
     </extensions>
 
     <actions>

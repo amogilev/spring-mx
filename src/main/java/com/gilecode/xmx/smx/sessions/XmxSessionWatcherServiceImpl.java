@@ -1,8 +1,6 @@
-package com.gilecode.xmx.smx.impl;
+package com.gilecode.xmx.smx.sessions;
 
-import com.gilecode.xmx.smx.XmxAgentVmParamsPatcherExtension;
-import com.gilecode.xmx.smx.XmxSession;
-import com.gilecode.xmx.smx.XmxSessionWatcherService;
+import com.gilecode.xmx.smx.run.XmxAgentVmParamsPatcherExtension;
 import com.intellij.execution.ExecutionListener;
 import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.Executor;

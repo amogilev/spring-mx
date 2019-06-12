@@ -1,4 +1,4 @@
-package com.gilecode.xmx.smx;
+package com.gilecode.xmx.smx.run;
 
 /**
  * Thrown to indicate that SMX/XMX cannot be started due to configuration issues.

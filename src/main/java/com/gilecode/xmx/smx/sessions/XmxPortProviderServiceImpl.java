@@ -1,7 +1,6 @@
-package com.gilecode.xmx.smx.impl;
+package com.gilecode.xmx.smx.sessions;
 
-import com.gilecode.xmx.smx.XmxPortProviderService;
-import com.gilecode.xmx.smx.XmxSessionWatcherService;
+import com.gilecode.xmx.smx.settings.SmxSettingService;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.InetAddress;
@@ -14,19 +13,22 @@ public class XmxPortProviderServiceImpl implements XmxPortProviderService {
 
     public static final String DEFAULT_PORTS_RANGE = "8081,8181,8281,9011-65535";
 
-    private final List<Pair<Integer, Integer>> portRanges;
     private final XmxSessionWatcherService watcherService;
+    private final SmxSettingService settingService;
 
-    public XmxPortProviderServiceImpl(XmxSessionWatcherService watcherService) {
+    private String portRangesStr;
+    private Iterable<? extends Pair<Integer, Integer>> portRanges;
+
+    public XmxPortProviderServiceImpl(XmxSessionWatcherService watcherService, SmxSettingService settingService) {
         this.watcherService = watcherService;
-        portRanges = new PortRangesParser().parsePortRanges(DEFAULT_PORTS_RANGE);
+        this.settingService = settingService;
     }
 
     @Override
     public Integer findAndReserveFreeXmxPort() {
         Set<Integer> busyPorts = watcherService.getReservedAndBusyXmxPorts();
 
-        for (Pair<Integer, Integer> range : portRanges) {
+        for (Pair<Integer, Integer> range : getPortRanges()) {
             int lo = range.getLeft();
             int hi = range.getLeft();
             for (int port = lo; port <= hi; port++) {
@@ -38,6 +40,18 @@ public class XmxPortProviderServiceImpl implements XmxPortProviderService {
             }
         }
         return null;
+    }
+
+    private Iterable<? extends Pair<Integer, Integer>> getPortRanges() {
+        String curPortsStr = settingService.getState().getPorts();
+        if (curPortsStr.equals(portRangesStr)) {
+            // use cached
+            return portRanges;
+        } else {
+            portRanges = new PortRangesParser().parsePortRanges(curPortsStr);
+            portRangesStr = curPortsStr;
+            return portRanges;
+        }
     }
 
     private boolean isExternallyBound(int port) {

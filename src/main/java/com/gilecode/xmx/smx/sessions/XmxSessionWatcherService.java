@@ -1,4 +1,4 @@
-package com.gilecode.xmx.smx;
+package com.gilecode.xmx.smx.sessions;
 
 import com.intellij.openapi.components.ServiceManager;
 

@@ -1,4 +1,4 @@
-package com.gilecode.xmx.smx;
+package com.gilecode.xmx.smx.sessions;
 
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;

@@ -1,4 +1,4 @@
-package com.gilecode.xmx.smx.impl;
+package com.gilecode.xmx.smx.sessions;
 
 import org.apache.commons.lang3.tuple.Pair;
 
