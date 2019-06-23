@@ -36,6 +36,9 @@
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
+        <action
+                text="Show active SpringMX sessions"
+                popup="true"
+                class="com.gilecode.xmx.smx.sessions.ShowSessionsListAction"/>
     </actions>
 </idea-plugin>
