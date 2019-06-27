@@ -40,6 +40,6 @@ public class ShowSessionsListAction extends AnAction {
             }
         };
         ListPopup listPopup = JBPopupFactory.getInstance().createListPopup(step);
-        listPopup.showInFocusCenter();
+        listPopup.showInBestPositionFor(e.getDataContext());
     }
 }

@@ -27,6 +27,7 @@
 
         <applicationConfigurable
                 id="Settings.SpringMX"
+                displayName="Spring MX"
                 groupId="language"
                 instance="com.gilecode.xmx.smx.settings.SmxConfigurable"/>
     </extensions>
