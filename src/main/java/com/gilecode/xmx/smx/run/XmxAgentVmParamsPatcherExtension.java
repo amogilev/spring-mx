@@ -42,7 +42,7 @@ public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
 
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
-        if (!isApplicableFor(executor, configuration, javaParameters)) {
+        if (!isApplicableFor(javaParameters)) {
             return;
         }
 
@@ -72,28 +72,27 @@ public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
         return sb.toString();
     }
 
-    public boolean isApplicableFor(Executor executor, RunProfile configuration, JavaParameters params) {
+    private boolean isApplicableFor(JavaParameters params) {
         if (!isPluginEnabled()) {
             return false;
         }
 
-        if (!containsSpringJars(params.getClassPath()) && !containsSpringJars(params.getModulePath())) {
+        if (noSpringJarsIn(params.getClassPath()) && noSpringJarsIn(params.getModulePath())) {
             return false;
         }
 
 
-        // TODO: check that enabled for the configuration of this type (Run vs Debug)
         ensureAgentJar();
         return agentJarFound;
     }
 
-    private boolean containsSpringJars(PathsList classPath) {
+    private boolean noSpringJarsIn(PathsList classPath) {
         for (String path : classPath.getPathList()) {
             if (isSpringJar(path)) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     boolean isSpringJar(String path) {
