@@ -16,7 +16,7 @@
     <depends>com.intellij.modules.lang</depends>
     -->
 
-    <idea-version since-build="191"/> <!-- TODO test with earlier versions (but need BaseProcessHandler - since 181.2784) -->
+    <idea-version since-build="182"/>
 
 
     <extensions defaultExtensionNs="com.intellij">
