@@ -1,3 +1,5 @@
+<!-- Copyright © 2019 Andrey Mogilev. All rights reserved. -->
+
 <idea-plugin>
     <id>com.gilecode.xmx.smx-idea</id>
     <name>Spring MX</name>

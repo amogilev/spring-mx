@@ -1,3 +1,5 @@
+// Copyright © 2019 Andrey Mogilev. All rights reserved.
+
 package com.gilecode.xmx.smx.sessions;
 
 import org.apache.commons.lang3.tuple.Pair;
