@@ -42,7 +42,7 @@ public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
 
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
-        if (!isApplicableFor(javaParameters)) {
+        if (!isApplicableFor(executor, configuration, javaParameters)) {
             return;
         }
 
@@ -72,18 +72,25 @@ public class XmxAgentVmParamsPatcherExtension extends JavaProgramPatcher {
         return sb.toString();
     }
 
-    private boolean isApplicableFor(JavaParameters params) {
+    private boolean isApplicableFor(Executor executor, RunProfile configuration, JavaParameters params) {
         if (!isPluginEnabled()) {
             return false;
         }
 
-        if (noSpringJarsIn(params.getClassPath()) && noSpringJarsIn(params.getModulePath())) {
+        if (!isJavaEEConfiguration(configuration) && noSpringJarsIn(params.getClassPath())
+                && noSpringJarsIn(params.getModulePath())) {
             return false;
         }
 
 
         ensureAgentJar();
         return agentJarFound;
+    }
+
+    private boolean isJavaEEConfiguration(RunProfile configuration) {
+        // Java EE run configurations like com.intellij.javaee.run.configuration.CommonStrategy are not public, so
+        //  we only can check the package name
+        return configuration.getClass().getName().startsWith("com.intellij.javaee");
     }
 
     private boolean noSpringJarsIn(PathsList classPath) {
